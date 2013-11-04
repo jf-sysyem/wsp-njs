@@ -11,6 +11,7 @@
         <script type="text/javascript" src="http://localhost:8673/socket.io/socket.io.js"></script>
         <script type="text/javascript">
             var socket = io.connect('http://localhost:8673');
+//            var socket = io.connect('http://www.jf-system.com:8673');
             var user = Math.round(Math.random()*9999);
                     
             function enter() {
@@ -34,6 +35,7 @@
             });   
             
             socket.on('counter', function( enter, exit, n) {
+                document.getElementById('timer').innerHTML = enter + ' ENTER | ' + exit + ' EXIT | ' + n + ' NOTIFY';
                 console.log(enter, exit, n);
             });
         </script>
@@ -45,6 +47,10 @@
         </div>
         <h1>Public</h1>
         <div id="public">
+
+        </div>
+        <h1>Timer</h1>
+        <div id="timer">
 
         </div>
         <h1>Actions</h1>
