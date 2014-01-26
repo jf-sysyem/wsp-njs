@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Test WSP Node.js</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <!-- 
+        <script type="text/javascript" src="http://www.wsprice.it:8217/socket.io/socket.io.js"></script>
+        -->
+        <script type="text/javascript" src="http://localhost:8217/socket.io/socket.io.js"></script>
+        <script src="http://www.wsprice.it/bundles/metronicadmin/plugins/jquery-1.10.2.min.js" type="text/javascript"></script>
+        <script src="http://www.wsprice.it/bundles/metronicadmin/plugins/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>   
+
+        <script type="text/javascript">
+            var socket = io.connect('http://localhost:8217');
+//            var socket = io.connect('http://www.wsprice.it:8217');
+            var user = Math.round(Math.random()*9999);
+                
+            var $dom = null;
+    
+            function login() {
+                socket.emit('login', {'_username': 'ephraim', '_password': 'livorno'});
+            }
+            
+            
+            socket.on('login', function(response) {
+                console.log(response);
+                $dom = $(response);
+            });   
+        </script>
+    </head>
+    <body>
+        <h1>Actions</h1>
+        <div>
+            <button onclick="login()">LOGIN</button>
+        </div>
+    </body>
+</html>

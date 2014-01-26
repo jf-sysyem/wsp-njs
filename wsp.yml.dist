@@ -1,0 +1,9 @@
+config:
+    port: 8217
+    server_number: 1
+    database_host: localhost
+    database_port: 3306
+    database_name: wsp
+    database_user: root
+    database_password: Q3nExPZWzB
+    http_wsp: www.wsprice.com

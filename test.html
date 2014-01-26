@@ -5,13 +5,14 @@
         <title>Test Node.js</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
-        <!-- 
         <script type="text/javascript" src="http://www.jf-system.com:8673/socket.io/socket.io.js"></script>
-        -->
+        <!-- 
         <script type="text/javascript" src="http://localhost:8673/socket.io/socket.io.js"></script>
+        -->
         <script type="text/javascript">
-            var socket = io.connect('http://localhost:8673');
+//            var socket = io.connect('http://localhost:8673');
 //            var socket = io.connect('http://www.jf-system.com:8673');
+            var socket = io.connect('http://www.wsprice.it:8673');
             var user = Math.round(Math.random()*9999);
                     
             function enter() {
