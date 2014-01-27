@@ -6,7 +6,9 @@ var express = require('express')
         , fs = require('fs')
         , ephp = require('./ephp_modules/utility')
         , mysql = require('mysql')
-        , $ = require('nodeQuery')
+//        , $ = require('jquery').create()
+        , $ = require('cheerio')
+        , querystring = require('querystring')
         ;
 
 var wsp_port = 0;
@@ -59,22 +61,57 @@ fs.readFile('./' + config + '.yml', 'utf8', function(err, data) {
 io.sockets.on('connection', function(socket) {
 
     socket.on('login', function(data) {
-        var options = {
+        var options_get = {
           host: http_wsp,
           path: '/login',
           method: 'GET'          
         };
-
-        ephp.httpRequest(options, function(str) {
+/*
+        $.get(http_wsp+'/login', function(html){
+            var $dom = $(html); 
+            
+        });
+*/
+        
+        ephp.getRequest(options_get, function(str, status, headers) {
             var $dom = $(str); 
-            console.log($dom);
-            socket.emit('login', str);
-            var options = {
-              host: http_wsp,
-              path: '/login_check?_username='+data._username+'&_password='+data._password+'&_remember_me=on',
-              method: 'POST',
-
+            var csrf_token = $dom.find('#csrf_token').val();
+            var post_data = {
+                _username: data._username,
+                _password: data._password,
+                _remember_me: 'on',
+                _csrf_token: csrf_token
             };
+            var options_post = {
+              host: http_wsp,
+              path: '/login_check',
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'Content-Length': querystring.stringify(post_data).length,
+                  'Cookie': headers['set-cookie']
+              }
+            };
+            console.log(options_post);
+            console.log(post_data);
+            console.log(querystring.stringify(post_data));
+            ephp.postRequest(options_post, querystring.stringify(post_data), function(str, status, headers2) {
+                console.log(str);
+                console.log(status);
+                console.log(headers);
+                if(headers.location === 'http://'+http_wsp+'/login') {
+                    
+                } else {
+                    
+                }
+            /*
+                ephp.httpRequest(options, function(str) {
+                    var $dom = $(str); 
+                    var span = $dom.find('.alert-danger').find('span');
+                    socket.emit('login', span.html());
+                });
+             */
+            });
         });
     });
     

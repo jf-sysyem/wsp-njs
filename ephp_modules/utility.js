@@ -267,7 +267,8 @@ var unserializePhp = function(data) {
 }
 
 var guid = function(server_number) {
-    if(!server_number) server_number = '0';
+    if (!server_number)
+        server_number = '0';
     var dataHex = Date.create('now').getTime().toString(16);
     return dataHex.to(8) + '-' + server_number + dataHex.from(8) + '-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c === 'x' ? r : r & 0x3 | 0x8;
@@ -275,20 +276,35 @@ var guid = function(server_number) {
     });
 };
 
-var httpRequest = function(options, callback) {
-    http.request(options, function(response) {
+var getRequest = function(options, callback) {
+    http.request(options, function(res) {
+        var status = res.statusCode;
+        var headers = res.headers;
         var str = '';
-
-        //another chunk of data has been recieved, so append it to `str`
-        response.on('data', function(chunk) {
+        res.setEncoding('utf8');
+        res.on('data', function(chunk) {
             str += chunk;
         });
-
-        //the whole response has been recieved, so we just print it out here
-        response.on('end', function() {
-            callback(str);
+        res.on('end', function() {
+            callback(str, status, headers);
         });
     }).end();
+};
+var postRequest = function(options, post_data, callback) {
+    var post_req = http.request(options, function(res) {
+        var status = res.statusCode;
+        var headers = res.headers;
+        var str = '';
+        res.setEncoding('utf8');
+        res.on('data', function(chunk) {
+            str += chunk;
+        });
+        res.on('end', function() {
+            callback(str, status, headers);
+        });
+    });
+    post_req.write(post_data);
+    post_req.end();
 };
 
 function is_int(input) {
@@ -311,7 +327,8 @@ exports.readParam = readParam;
 exports.serializePhp = serializePhp;
 exports.unserializePhp = unserializePhp;
 exports.guid = guid;
-exports.httpRequest = httpRequest;
+exports.getRequest = getRequest;
+exports.postRequest = postRequest;
 exports.is_int = is_int;
 exports.is_float = is_float;
 exports.is_string = is_string;
