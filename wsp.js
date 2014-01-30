@@ -35,10 +35,10 @@ fs.readFile('./' + config + '.yml', 'utf8', function(err, data) {
     wsp_port = ephp.readParam(data, 'port:', wsp_port);
     server.listen(wsp_port);
     console.log('WSP service enabled on port ' + wsp_port);
-    
+
     server_number = ephp.readParam(data, 'server_number:', server_number);
     console.log('Server number ' + server_number);
-    
+
     http_wsp = ephp.readParam(data, 'http_wsp:', http_wsp);
     console.log('connected to http://' + http_wsp);
 
@@ -62,19 +62,17 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('login', function(data) {
         var options_get = {
-          host: http_wsp,
-          path: '/login',
-          method: 'GET'          
+            host: http_wsp,
+            path: '/login',
+            method: 'GET'
         };
-/*
-        $.get(http_wsp+'/login', function(html){
-            var $dom = $(html); 
-            
-        });
-*/
-        
+
         ephp.getRequest(options_get, function(str, status, headers) {
-            var $dom = $(str); 
+            if (status !== 200) {
+                socket.emit('login', {status: 500, error: 'Can\'t load login page: ' + status});
+                return;
+            }
+            var $dom = $(str);
             var csrf_token = $dom.find('#csrf_token').val();
             var post_data = {
                 _username: data._username,
@@ -83,38 +81,52 @@ io.sockets.on('connection', function(socket) {
                 _csrf_token: csrf_token
             };
             var options_post = {
-              host: http_wsp,
-              path: '/login_check',
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                  'Content-Length': querystring.stringify(post_data).length,
-                  'Cookie': headers['set-cookie']
-              }
-            };
-            console.log(options_post);
-            console.log(post_data);
-            console.log(querystring.stringify(post_data));
-            ephp.postRequest(options_post, querystring.stringify(post_data), function(str, status, headers2) {
-                console.log(str);
-                console.log(status);
-                console.log(headers);
-                if(headers.location === 'http://'+http_wsp+'/login') {
-                    
-                } else {
-                    
+                host: http_wsp,
+                path: '/login_check',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Length': querystring.stringify(post_data).length,
+                    'Cookie': headers['set-cookie']
                 }
-            /*
-                ephp.httpRequest(options, function(str) {
-                    var $dom = $(str); 
-                    var span = $dom.find('.alert-danger').find('span');
-                    socket.emit('login', span.html());
-                });
-             */
+            };
+            ephp.postRequest(options_post, querystring.stringify(post_data), function(str, status, headers) {
+                if (status !== 302) {
+                    socket.emit('login', {status: 500, error: 'Can\'t check login: ' + status});
+                    return;
+                }
+                if (headers.location === 'http://' + http_wsp + '/login') {
+                    socket.emit('login', {status: 401, error: 'User not authorized'});
+                } else {
+                    db_pool.getConnection(function(error, connection) {
+                        if (error) {
+                            socket.emit('login', {status: 500, error: 'Can\'t create db pool: ' + error});
+                            return;
+                        }
+                        var query =
+                                " SELECT salt" +
+                                "  FROM acl_gestori g " +
+                                " WHERE g.username = " + connection.escape(data._username) ;
+                        connection.query(query, function(err, rows) {
+                            if (err) {
+                                socket.emit('login', {status: 500, error: 'Can\'t execute query: ' + err});
+                                return;
+                            }
+                            connection.end();
+                            if (rows.length === 0) {
+                                socket.emit('login', {status: 500, error: 'Can\'t find user'});
+                                return;
+                            } else {
+                                socket.emit('login', {status: 200, token: rows[0].salt});
+                            }
+                        });
+                    });
+
+                }
             });
         });
     });
-    
+
     socket.on('logout', function(data) {
     });
 
