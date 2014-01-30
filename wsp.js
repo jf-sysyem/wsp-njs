@@ -67,6 +67,8 @@ io.sockets.on('connection', function(socket) {
             method: 'GET'
         };
 
+        console.log(options_get);
+
         ephp.getRequest(options_get, function(str, status, headers) {
             if (status !== 200) {
                 socket.emit('login', {status: 500, error: 'Can\'t load login page: ' + status});
