@@ -90,8 +90,9 @@ io.sockets.on('connection', function(socket) {
                     'Cookie': headers['set-cookie']
                 }
             };
+            console.log(options_post);
+            console.log(post_data);
             ephp.postRequest(options_post, querystring.stringify(post_data), function(str, status, headers) {
-                console.log(str);
                 console.log(headers);
                 if (status !== 302) {
                     socket.emit('login', {status: 500, error: 'Can\'t check login: ' + status});
