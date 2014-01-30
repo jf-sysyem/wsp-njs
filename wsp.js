@@ -67,8 +67,6 @@ io.sockets.on('connection', function(socket) {
             method: 'GET'
         };
 
-        console.log(options_get);
-
         ephp.getRequest(options_get, function(str, status, headers) {
             if (status !== 200) {
                 socket.emit('login', {status: 500, error: 'Can\'t load login page: ' + status});
@@ -93,6 +91,8 @@ io.sockets.on('connection', function(socket) {
                 }
             };
             ephp.postRequest(options_post, querystring.stringify(post_data), function(str, status, headers) {
+                console.log(str);
+                console.log(headers);
                 if (status !== 302) {
                     socket.emit('login', {status: 500, error: 'Can\'t check login: ' + status});
                     return;
