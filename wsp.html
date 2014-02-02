@@ -74,6 +74,7 @@
                         <select id="emit">
                             <option value="login">Login</option>
                             <option value="getNegozi">Get Negozi</option>
+                            <option value="setDescrizioneNegozio">Set Descrizione Negozio</option>
                         </select>
                         <table border="1">
                             <thead>
@@ -108,6 +109,26 @@
                                                 <input type="text" name="token">
                                             </div>
                                             <button onclick="emit('getNegozi')">GET NEGOZI</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr id="tr_setDescrizioneNegozio" class="emit" style="display: none;">
+                                    <th>getNegozi</th>
+                                    <td>
+                                        <form class="socket" id="setDescrizioneNegozio" onsubmit="return false">
+                                            <div>
+                                                <label>Token</label><br/>
+                                                <input type="text" name="token">
+                                            </div>
+                                            <div>
+                                                <label>Negozio</label><br/>
+                                                <input type="text" name="id">
+                                            </div>
+                                            <div>
+                                                <label>Descrizione</label><br/>
+                                                <textarea name="descrizione"></textarea>
+                                            </div>
+                                            <button onclick="emit('setDescrizioneNegozio')">SET DESCRIZIONE NEGOZIO</button>
                                         </form>
                                     </td>
                                 </tr>

@@ -6,6 +6,7 @@ var express = require('express')
         , fs = require('fs')
         , ephp = require('./ephp_modules/utility')
         , wsp = require('./wsp_modules/wsp')
+        , negozio = require('./wsp_modules/negozio')
         , mysql = require('mysql')
         , $ = require('cheerio')
         , querystring = require('querystring')
@@ -131,8 +132,22 @@ io.sockets.on('connection', function(socket) {
             if(user.status !== 200) {
                 return socket.emit('getNegozi', user);
             }
-            wsp.getNegoziUser(db_pool, user.user, function(output) {
+            negozio.getNegoziUser(db_pool, user.user, function(output) {
                 socket.emit('getNegozi', output);
+            });
+        });
+    });
+
+    socket.on('setDescrizioneNegozio', function(data) {
+        if(!data.token) {
+            return socket.emit('setDescrizioneNegozio', {status: 500, error: 'Can\'t find toker'});
+        }
+        wsp.getUserFromToken(db_pool, data.token, function(user){
+            if(user.status !== 200) {
+                return socket.emit('setDescrizioneNegozio', user);
+            }
+            negozio.setDescrizioneNegozio(db_pool, user.user, data.id, data.descrizione, function(output) {
+                socket.emit('setDescrizioneNegozio', output);
             });
         });
     });
