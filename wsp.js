@@ -5,8 +5,8 @@ var express = require('express')
         , sugar = require('./ephp_modules/node_modules/sugar')
         , fs = require('fs')
         , ephp = require('./ephp_modules/utility')
+        , wsp = require('./wsp_modules/wsp')
         , mysql = require('mysql')
-//        , $ = require('jquery').create()
         , $ = require('cheerio')
         , querystring = require('querystring')
         ;
@@ -90,42 +90,49 @@ io.sockets.on('connection', function(socket) {
                     'Cookie': headers['set-cookie']
                 }
             };
-            console.log(options_post);
-            console.log(post_data);
+            
             ephp.postRequest(options_post, querystring.stringify(post_data), function(str, status, headers) {
-                console.log(headers);
                 if (status !== 302) {
-                    socket.emit('login', {status: 500, error: 'Can\'t check login: ' + status});
-                    return;
+                    return socket.emit('login', {status: 500, error: 'Can\'t check login: ' + status});
                 }
                 if (headers.location === 'http://' + http_wsp + '/login') {
                     socket.emit('login', {status: 401, error: 'User not authorized'});
                 } else {
                     db_pool.getConnection(function(error, connection) {
                         if (error) {
-                            socket.emit('login', {status: 500, error: 'Can\'t create db pool: ' + error});
-                            return;
+                            return socket.emit('login', {status: 500, error: 'Can\'t create db pool: ' + error});
                         }
                         var query =
                                 " SELECT salt" +
                                 "  FROM acl_gestori g " +
-                                " WHERE g.username = " + connection.escape(data._username) ;
+                                " WHERE g.username = " + connection.escape(data._username);
                         connection.query(query, function(err, rows) {
                             if (err) {
-                                socket.emit('login', {status: 500, error: 'Can\'t execute query: ' + err});
-                                return;
+                                return socket.emit('login', {status: 500, error: 'Can\'t execute query: ' + err});
                             }
                             connection.end();
                             if (rows.length === 0) {
                                 socket.emit('login', {status: 500, error: 'Can\'t find user'});
-                                return;
                             } else {
                                 socket.emit('login', {status: 200, token: rows[0].salt});
                             }
                         });
                     });
-
                 }
+            });
+        });
+    });
+
+    socket.on('getNegozi', function(data) {
+        if(!data.token) {
+            return socket.emit('getNegozi', {status: 500, error: 'Can\'t find toker'});
+        }
+        wsp.getUserFromToken(db_pool, data.token, function(user){
+            if(user.status !== 200) {
+                return socket.emit('getNegozi', user);
+            }
+            wsp.getNegoziUser(db_pool, user.user, function(output) {
+                socket.emit('getNegozi', output);
             });
         });
     });
