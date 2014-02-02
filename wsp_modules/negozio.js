@@ -69,9 +69,15 @@ var setDescrizioneNegozio = function(db_pool, user, negozio, descrizione, callba
             if (err) {
                 return callback({status: 500, error: '[Negozio.setDescrizioneNegozio] Can\'t execute query: ' + err});
             }
-            console.log(rows);
             connection.end();
-            callback({status: 200});
+            switch(rows.affectedRows) {
+                case 1: callback({status: 200});
+                    break;
+                case 0: callback({status: 401, error: 'Unauthorized operation'});
+                    break;
+                default:callback({status: 500, error: 'CRITICAL ERROR: to many rows modified'});
+                    break;
+            }
         });
     });
 };
