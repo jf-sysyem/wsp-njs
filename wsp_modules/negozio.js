@@ -67,6 +67,9 @@ var setDatiNegozio = function(db_pool, user, negozio, dati, callback) {
         var data = Object.extended(dati);
         var set = "";
         data.keys().each(function(k) {
+            if(k === 'email') {
+                k = "email_negozio";
+            }
             if(set === "") {
                 set += "   SET n."+k+" = " + connection.escape(data[k]);
             } else {
@@ -81,7 +84,6 @@ var setDatiNegozio = function(db_pool, user, negozio, dati, callback) {
                 set +
                 " WHERE n.cliente_id = " + connection.escape(user.id) +
                 "   AND n.id = " + connection.escape(negozio);
-        console.log(query);
         connection.query(query, function(err, rows) {
             if (err) {
                 return callback({status: 500, error: '[Negozio.setDatiNegozio] Can\'t execute query: ' + err});

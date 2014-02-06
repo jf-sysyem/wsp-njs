@@ -64,10 +64,6 @@
                 log('getNegozi', 'on', response);
             });
 
-            socket.on('setNomeNegozio', function(response) {
-                log('setDescrizioneNegozio', 'on', response);
-            });
-
             socket.on('setDatiNegozio', function(response) {
                 log('setDatiNegozio', 'on', response);
             });
@@ -154,7 +150,7 @@
                                             </div>
                                             <div>
                                                 <label>Email</label><br/>
-                                                <input type="text" name="dati[email_negozio]">
+                                                <input type="text" name="dati[email]">
                                             </div>
                                             <div>
                                                 <label>Telefono</label><br/>
