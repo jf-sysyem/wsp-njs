@@ -138,16 +138,16 @@ io.sockets.on('connection', function(socket) {
         });
     });
 
-    socket.on('setDescrizioneNegozio', function(data) {
+    socket.on('setDatiNegozio', function(data) {
         if(!data.token) {
-            return socket.emit('setDescrizioneNegozio', {status: 500, error: 'Can\'t find toker'});
+            return socket.emit('setNomeNegozio', {status: 500, error: 'Can\'t find toker'});
         }
         wsp.getUserFromToken(db_pool, data.token, function(user){
             if(user.status !== 200) {
-                return socket.emit('setDescrizioneNegozio', user);
+                return socket.emit('setNomeNegozio', user);
             }
-            negozio.setDescrizioneNegozio(db_pool, user.user, data.id, data.descrizione, function(output) {
-                socket.emit('setDescrizioneNegozio', output);
+            negozio.setDatiNegozio(db_pool, user.user, data.id, data.dati, function(output) {
+                socket.emit('setNomeNegozio', output);
             });
         });
     });

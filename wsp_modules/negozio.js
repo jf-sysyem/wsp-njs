@@ -1,5 +1,9 @@
 var sugar = require('sugar');
 
+function deg2rad(angle) {
+    return angle * (Math.PI/180);
+}
+
 var getNegoziUser = function(db_pool, user, callback) {
     db_pool.getConnection(function(error, connection) {
         if (error) {
@@ -55,19 +59,32 @@ var getNegoziUser = function(db_pool, user, callback) {
     });
 };
 
-var setDescrizioneNegozio = function(db_pool, user, negozio, descrizione, callback) {
+var setDatiNegozio = function(db_pool, user, negozio, dati, callback) {
     db_pool.getConnection(function(error, connection) {
         if (error) {
-            return callback({status: 500, error: '[Negozio.setDescrizioneNegozio] Can\'t create db pool: ' + error});
+            return callback({status: 500, error: '[Negozio.setDatiNegozio] Can\'t create db pool: ' + error});
         }
+        var data = Object.extended(dati);
+        var set = "";
+        data.keys().each(function(k) {
+            if(set === "") {
+                set += "   SET n."+k+" = " + connection.escape(data[k]);
+            } else {
+                set += "     , n."+k+" = " + connection.escape(data[k]);
+            }
+            if(k === 'latitudine' || k === 'longitudine') {
+                set += "     , n."+k+"rad = " + connection.escape(deg2rad(data[k]));
+            }
+        });
         var query =
                 "UPDATE acl_negozio n " +
-                "   SET n.descrizione = " + connection.escape(descrizione) +
+                set +
                 " WHERE n.cliente_id = " + connection.escape(user.id) +
                 "   AND n.id = " + connection.escape(negozio);
+        console.log(query);
         connection.query(query, function(err, rows) {
             if (err) {
-                return callback({status: 500, error: '[Negozio.setDescrizioneNegozio] Can\'t execute query: ' + err});
+                return callback({status: 500, error: '[Negozio.setDatiNegozio] Can\'t execute query: ' + err});
             }
             connection.end();
             switch(rows.affectedRows) {
@@ -83,4 +100,4 @@ var setDescrizioneNegozio = function(db_pool, user, negozio, descrizione, callba
 };
 
 exports.getNegoziUser = getNegoziUser;
-exports.setDescrizioneNegozio = setDescrizioneNegozio;
+exports.setDatiNegozio = setDatiNegozio;
