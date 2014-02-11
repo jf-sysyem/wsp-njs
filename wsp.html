@@ -102,7 +102,7 @@
                     $('#UploadArea').html(Content);
                     fReader.onload = function(evnt){
                         var data_reader = { token: token, id: id, name: name, data: evnt.target.result };
-                        var data_log = { token: token, id: id, name: name, data: '<blob>' };
+                        var data_log = { token: token, id: id, name: name, data: '[blob...]' };
                         socket.emit('continueUploadLogoNegozio', data_reader);
                         log('continueUploadLogoNegozio', 'emit', data_log);
                     }

@@ -6,6 +6,7 @@ var files = {};
 
 var newUpload = function(data, temp_dir, callback) {
     var name = data['name'];
+    console.log('NAME: '+name);
     files[name] = {//Create a new Entry in The Files Variable
         file_size: data['size'],
         data: "",
@@ -32,6 +33,8 @@ var newUpload = function(data, temp_dir, callback) {
 };
 var continueUpload = function(data, temp_dir, upload_dir, callback, ending_callback) {
     var name = data['name'];
+    console.log('NAME: '+name);
+    console.log('NAME: '+files[name]);
     files[name]['downloaded'] += data['data'].length;
     files[name]['data'] += data['data'];
     if (files[name]['downloaded'] === files[name]['file_size']) { //If File is Fully Uploaded
