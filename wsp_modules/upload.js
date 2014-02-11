@@ -13,7 +13,7 @@ var newUpload = function(data, temp_dir, callback) {
     };
     var place = 0;
     try {
-        var stat = fs.statSync(temp_dir + name);
+        var stat = fs.statSync(temp_dir + '/' + name);
         if (stat.isFile()) {
             files[name]['downloaded'] = stat.size;
             place = stat.size / 524288;
@@ -21,7 +21,7 @@ var newUpload = function(data, temp_dir, callback) {
     }
     catch (er) {
     } //It's a New File
-    fs.open(temp_dir + name, "a", 0755, function(err, fd) {
+    fs.open(temp_dir + '/' + name, "a", 0755, function(err, fd) {
         if (err) {
             console.log(err);
         } else {
@@ -36,11 +36,11 @@ var continueUpload = function(data, temp_dir, upload_dir, callback, ending_callb
     files[name]['data'] += data['data'];
     if (files[name]['downloaded'] === files[name]['file_size']) { //If File is Fully Uploaded
         fs.write(files[name]['handler'], files[name]['data'], null, 'Binary', function(err, Writen) {
-            var inp = fs.createReadStream(temp_dir + name);
-            var out = fs.createWriteStream(upload_dir + name);
+            var inp = fs.createReadStream(temp_dir + '/' + name);
+            var out = fs.createWriteStream(upload_dir + '/' + name);
             util.pump(inp, out, function() {
-                fs.unlink(temp_dir + name, function() { //This Deletes The Temporary File
-                    ending_callback({'file': upload_dir + name});
+                fs.unlink(temp_dir + '/' + name, function() { //This Deletes The Temporary File
+                    ending_callback({'file': upload_dir + '/' + name});
                 });
             });
         });
