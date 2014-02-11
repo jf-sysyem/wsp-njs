@@ -33,8 +33,6 @@ var newUpload = function(data, temp_dir, callback) {
 };
 var continueUpload = function(data, temp_dir, upload_dir, callback, ending_callback) {
     var name = data['name'];
-    console.log('NAME: '+name);
-    console.log('NAME: '+files[name]);
     files[name]['downloaded'] += data['data'].length;
     files[name]['data'] += data['data'];
     if (files[name]['downloaded'] === files[name]['file_size']) { //If File is Fully Uploaded
@@ -55,8 +53,8 @@ var continueUpload = function(data, temp_dir, upload_dir, callback, ending_callb
             callback({'place': place, 'percent': percent});
         });
     } else {
-        var place = files[name]['Downloaded'] / 524288;
-        var percent = (files[name]['Downloaded'] / files[name]['FileSize']) * 100;
+        var place = files[name]['downloaded'] / 524288;
+        var percent = (files[name]['downloaded'] / files[name]['file_size']) * 100;
         callback({'place': place, 'percent': percent});
     }
 };
