@@ -47,7 +47,7 @@
             }
 
             function log(action, mode, data) {
-                $tr = $('<tr></tr>');
+                $tr = $('<tr style="vertical-align: top;"></tr>');
                 now = new Date();
                 $tr.append('<td nowrap>' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ' ' + now.getMilliseconds() + '</td>');
                 $tr.append('<td>' + action + '</td>');
@@ -84,6 +84,8 @@
             var selectedFile;
             var fReader;
             var name;
+            var token;
+            var id;
             function FileChosen(evnt) {
                 selectedFile = evnt.target.files[0];
                 $('#logo_name_box').val(selectedFile.name);
@@ -92,16 +94,19 @@
                 if($('#logo_file_box').val() != "") {
                     fReader = new FileReader();
                     name = $('#logo_name_box').val();
+                    token = $('#logo_token').val();
+                    id = $('#logo_id').val();
                     var Content = "<span id='NameArea'>Uploading " + selectedFile.name + " as " + name + "</span>";
                     Content += '<div id="ProgressContainer"><div id="ProgressBar"></div></div><span id="percent">0%</span>';
                     Content += "<span id='Uploaded'> - <span id='MB'>0</span>/" + Math.round(selectedFile.size / 1048576) + "MB</span>";
                     $('#UploadArea').html(Content);
                     fReader.onload = function(evnt){
-                        var data_reader = { token: $('#logo_token').val(), id: $('#logo_id').val(), name: name, data: evnt.target.result };
+                        var data_reader = { token: token, id: id, name: name, data: evnt.target.result };
+                        var data_log = { token: token, id: id, name: name, data: '<blob>' };
                         socket.emit('continueUploadLogoNegozio', data_reader);
-                        log('continueUploadLogoNegozio', 'emit', data_reader);
+                        log('continueUploadLogoNegozio', 'emit', data_log);
                     }
-                    var data = { token: $('#logo_token').val(), id: $('#logo_id').val(), name : name, size : selectedFile.size };
+                    var data = { token: token, id: id, name : name, size : selectedFile.size };
                     socket.emit('startUploadLogoNegozio', data);
                     log('startUploadLogoNegozio', 'emit', data);
                 } else {
