@@ -166,6 +166,8 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('startUploadLogoNegozio', function(data) { //data contains the variables that we passed through in the html file
+        console.log('startUploadLogoNegozio');
+        console.log(data);
         if (!data.token) {
             return socket.emit('errorUploadLogoNegozio', {status: 500, error: 'Can\'t find toker'});
         }
@@ -181,6 +183,8 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('continueUploadLogoNegozio', function(data) {
+        console.log('continueUploadLogoNegozio');
+        console.log(data.data.length);
         if (!data.token) {
             return socket.emit('errorUploadLogoNegozio', {status: 500, error: 'Can\'t find toker'});
         }
