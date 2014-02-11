@@ -173,7 +173,7 @@ io.sockets.on('connection', function(socket) {
             if (user.status !== 200) {
                 return socket.emit('errorUploadLogoNegozio', user);
             }
-            upload.newUpload(data, tmp_dir, function(data) {
+            upload.newUpload(data, temp_dir, function(data) {
                 socket.emit('moreDataLogoNegozio', data);
             });
 
@@ -188,7 +188,7 @@ io.sockets.on('connection', function(socket) {
             if (user.status !== 200) {
                 return socket.emit('errorUploadLogoNegozio', user);
             }
-            utility.continueUpload(data, tmp_dir, function(data) {
+            utility.continueUpload(data, temp_dir, upload_dir, function(data) {
                 socket.emit('moreDataLogoNegozio', data);
             }, function(data){
                 socket.emit('doneLogoNegozio', data);/*
