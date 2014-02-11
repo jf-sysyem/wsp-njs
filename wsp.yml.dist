@@ -7,3 +7,5 @@ config:
     database_user: root
     database_password: Q3nExPZWzB
     http_wsp: www.wsprice.com
+    temp_dir: C:/tmp
+    upload_dir: D:/htdocs/AlSolution/WSP/web/web/uploads

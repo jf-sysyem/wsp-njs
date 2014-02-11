@@ -6,12 +6,19 @@ var express = require('express')
         , fs = require('fs')
         , ephp = require('./ephp_modules/utility')
         , wsp = require('./wsp_modules/wsp')
+        , upload = require('./wsp_modules/upload')
         , negozio = require('./wsp_modules/negozio')
         , mysql = require('mysql')
         , $ = require('cheerio')
         , querystring = require('querystring')
+        , exec = require('child_process').exec
+        , util = require('util')
         ;
-
+/*
+ var app = require('http').createServer(handler)
+ , io = require('socket.io').listen(app)
+ , fs = require('fs')
+ */
 var wsp_port = 0;
 var server_number = 0;
 var http_wsp = '';
@@ -20,6 +27,8 @@ var database_port = 0;
 var database_name = '';
 var database_user = '';
 var database_password = null;
+var temp_dir = '';
+var upload_dir = '';
 var db_pool = null;
 var config = 'wsp';
 
@@ -42,6 +51,10 @@ fs.readFile('./' + config + '.yml', 'utf8', function(err, data) {
 
     http_wsp = ephp.readParam(data, 'http_wsp:', http_wsp);
     console.log('connected to http://' + http_wsp);
+
+    upload_dir = ephp.readParam(data, 'upload_dir:', upload_dir);
+    temp_dir = ephp.readParam(data, 'temp_dir:', temp_dir);
+    console.log('Directory setted');
 
     database_host = ephp.readParam(data, 'database_host:', database_host);
     database_port = ephp.readParam(data, 'database_port:', database_port);
@@ -91,7 +104,7 @@ io.sockets.on('connection', function(socket) {
                     'Cookie': headers['set-cookie']
                 }
             };
-            
+
             ephp.postRequest(options_post, querystring.stringify(post_data), function(str, status, headers) {
                 if (status !== 302) {
                     return socket.emit('login', {status: 500, error: 'Can\'t check login: ' + status});
@@ -125,11 +138,11 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('getNegozi', function(data) {
-        if(!data.token) {
+        if (!data.token) {
             return socket.emit('getNegozi', {status: 500, error: 'Can\'t find toker'});
         }
-        wsp.getUserFromToken(db_pool, data.token, function(user){
-            if(user.status !== 200) {
+        wsp.getUserFromToken(db_pool, data.token, function(user) {
+            if (user.status !== 200) {
                 return socket.emit('getNegozi', user);
             }
             negozio.getNegoziUser(db_pool, user.user, function(output) {
@@ -139,11 +152,11 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('setDatiNegozio', function(data) {
-        if(!data.token) {
+        if (!data.token) {
             return socket.emit('setDatiNegozio', {status: 500, error: 'Can\'t find toker'});
         }
-        wsp.getUserFromToken(db_pool, data.token, function(user){
-            if(user.status !== 200) {
+        wsp.getUserFromToken(db_pool, data.token, function(user) {
+            if (user.status !== 200) {
                 return socket.emit('setDatiNegozio', user);
             }
             negozio.setDatiNegozio(db_pool, user.user, data.id, data.dati, function(output) {
@@ -151,6 +164,42 @@ io.sockets.on('connection', function(socket) {
             });
         });
     });
+
+    socket.on('startUploadLogoNegozio', function(data) { //data contains the variables that we passed through in the html file
+        if (!data.token) {
+            return socket.emit('errorUploadLogoNegozio', {status: 500, error: 'Can\'t find toker'});
+        }
+        wsp.getUserFromToken(db_pool, data.token, function(user) {
+            if (user.status !== 200) {
+                return socket.emit('errorUploadLogoNegozio', user);
+            }
+            upload.newUpload(data, tmp_dir, function(data) {
+                socket.emit('moreDataLogoNegozio', data);
+            });
+
+        });
+    });
+
+    socket.on('continueUploadLogoNegozio', function(data) {
+        if (!data.token) {
+            return socket.emit('errorUploadLogoNegozio', {status: 500, error: 'Can\'t find toker'});
+        }
+        wsp.getUserFromToken(db_pool, data.token, function(user) {
+            if (user.status !== 200) {
+                return socket.emit('errorUploadLogoNegozio', user);
+            }
+            utility.continueUpload(data, tmp_dir, function(data) {
+                socket.emit('moreDataLogoNegozio', data);
+            }, function(data){
+                socket.emit('doneLogoNegozio', data);/*
+                exec("ffmpeg -i " + data.file + " -ss 01:30 -r 1 -an -vframes 1 -f mjpeg Video/" + name + ".jpg", function(err) {
+                    socket.emit('doneLogoNegozio', {'Image': data.file + '.jpg'});
+                });
+                */
+            });
+        });
+    });
+
 
     socket.on('logout', function(data) {
     });
