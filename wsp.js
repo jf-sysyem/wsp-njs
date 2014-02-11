@@ -188,7 +188,7 @@ io.sockets.on('connection', function(socket) {
             if (user.status !== 200) {
                 return socket.emit('errorUploadLogoNegozio', user);
             }
-            utility.continueUpload(data, temp_dir, upload_dir, function(data) {
+            upload.continueUpload(data, temp_dir, upload_dir, function(data) {
                 socket.emit('moreDataLogoNegozio', data);
             }, function(data){
                 socket.emit('doneLogoNegozio', data);/*
