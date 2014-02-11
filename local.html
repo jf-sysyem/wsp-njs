@@ -97,11 +97,11 @@
                     Content += "<span id='Uploaded'> - <span id='MB'>0</span>/" + Math.round(selectedFile.size / 1048576) + "MB</span>";
                     $('#UploadArea').html(Content);
                     fReader.onload = function(evnt){
-                        var data_reader = { token: $('#logo_token'), id: $('#logo_id'), name: name, data: evnt.target.result };
+                        var data_reader = { token: $('#logo_token').val(), id: $('#logo_id').val(), name: name, data: evnt.target.result };
                         socket.emit('continueUploadLogoNegozio', data_reader);
                         log('continueUploadLogoNegozio', 'emit', data_reader);
                     }
-                    var data = { token: $('#logo_token'), id: $('#logo_id'), name : name, size : selectedFile.size };
+                    var data = { token: $('#logo_token').val(), id: $('#logo_id').val(), name : name, size : selectedFile.size };
                     socket.emit('startUploadLogoNegozio', data);
                     log('startUploadLogoNegozio', 'emit', data);
                 } else {
