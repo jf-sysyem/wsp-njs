@@ -6,7 +6,6 @@ var files = {};
 
 var newUpload = function(data, temp_dir, callback) {
     var name = data['name'];
-    console.log('NAME: '+name);
     files[name] = {//Create a new Entry in The Files Variable
         file_size: data['size'],
         data: "",
@@ -41,7 +40,7 @@ var continueUpload = function(data, temp_dir, upload_dir, callback, ending_callb
             var out = fs.createWriteStream(upload_dir + '/' + name);
             util.pump(inp, out, function() {
                 fs.unlink(temp_dir + '/' + name, function() { //This Deletes The Temporary File
-                    ending_callback({'file': upload_dir + '/' + name});
+                    ending_callback({'path': upload_dir + '/' + name, 'file': name});
                 });
             });
         });
