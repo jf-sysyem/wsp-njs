@@ -128,7 +128,7 @@ io.sockets.on('connection', function(socket) {
                             if (rows.length === 0) {
                                 socket.emit('login', {status: 500, error: 'Can\'t find user'});
                             } else {
-                                socket.emit('login', {status: 200, token: rows[0].salt});
+                                socket.emit('login', {status: 200, token: rows[0].salt, headers: headers});
                             }
                         });
                     });
