@@ -14,7 +14,7 @@ var getNegoziUser = function(db_pool, user, callback) {
                 "       n.nome," +
                 "       c.categoria," +
                 "       CONCAT('/bundles/wspadmin/images/shop-icon/', c.image) as logo_categoria," +
-                "       n.logo as logo_negozio," +
+                "       (SELECT CONCAT('http://media.wsprice.it/uploads/', l.path, '/[size]/', l.nome) FROM jf_files l WHERE l.id = n.logo_id ) as logo_negozio," +
                 "       n.indirizzo," +
                 "       n.localita," +
                 "       n.cap," +
