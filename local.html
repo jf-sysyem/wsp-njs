@@ -47,7 +47,7 @@
             }
 
             function log(action, mode, data) {
-                $tr = $('<tr></tr>');
+                $tr = $('<tr style="vertical-align: top;"></tr>');
                 now = new Date();
                 $tr.append('<td nowrap>' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ' ' + now.getMilliseconds() + '</td>');
                 $tr.append('<td>' + action + '</td>');
@@ -68,6 +68,10 @@
                 log('setDatiNegozio', 'on', response);
             });
 
+            socket.on('getProdottiNegozio', function(response) {
+                log('getProdottiNegozio', 'on', response);
+            });
+
             $(document).ready(function() {
                 $('#emit').change(function() {
                     $('.emit').hide();
@@ -84,6 +88,8 @@
             var selectedFile;
             var fReader;
             var name;
+            var token;
+            var id;
             function FileChosen(evnt) {
                 selectedFile = evnt.target.files[0];
                 $('#logo_name_box').val(selectedFile.name);
@@ -92,16 +98,19 @@
                 if($('#logo_file_box').val() != "") {
                     fReader = new FileReader();
                     name = $('#logo_name_box').val();
+                    token = $('#logo_token').val();
+                    id = $('#logo_id').val();
                     var Content = "<span id='NameArea'>Uploading " + selectedFile.name + " as " + name + "</span>";
                     Content += '<div id="ProgressContainer"><div id="ProgressBar"></div></div><span id="percent">0%</span>';
                     Content += "<span id='Uploaded'> - <span id='MB'>0</span>/" + Math.round(selectedFile.size / 1048576) + "MB</span>";
                     $('#UploadArea').html(Content);
                     fReader.onload = function(evnt){
-                        var data_reader = { token: $('#logo_token').val(), id: $('#logo_id').val(), name: name, data: evnt.target.result };
+                        var data_reader = { token: token, id: id, name: name, data: evnt.target.result };
+                        var data_log = { token: token, id: id, name: name, data: '[blob...]' };
                         socket.emit('continueUploadLogoNegozio', data_reader);
-                        log('continueUploadLogoNegozio', 'emit', data_reader);
+                        log('continueUploadLogoNegozio', 'emit', data_log);
                     }
-                    var data = { token: $('#logo_token').val(), id: $('#logo_id').val(), name : name, size : selectedFile.size };
+                    var data = { token: token, id: id, name : name, size : selectedFile.size };
                     socket.emit('startUploadLogoNegozio', data);
                     log('startUploadLogoNegozio', 'emit', data);
                 } else {
@@ -130,13 +139,13 @@
                 document.getElementById('MB').innerHTML = MBDone;
             }
             
-            var Path = "http://local.wsprice.it/";
-//            var Path = "http://sviluppo.wsprice.it/";
+            var path = "http://local.wsprice.it/";
+//            var path = "http://sviluppo.wsprice.it/";
  
             socket.on('doneLogoNegozio', function (data){
                 log('doneLogoNegozio', 'on', data);
                 var content = "Video Successfully Uploaded !!"
-                content += "<img id='Thumb' src='" + Path + data['image'] + "' alt='" + name + "'><br>";
+                content += "<img id='Thumb' src='" + path + data['image'] + "' alt='" + name + "'><br>";
                 content += "<button  type='button' name='Upload' value='' id='Restart' class='Button'>Upload Another</button>";
                 $('#UploadArea').html(content);
                 $('#Restart').click(refresh);
@@ -164,6 +173,7 @@
                             <option value="login">Login</option>
                             <optgroup label="Lettura">
                                 <option value="getNegozi">Get Negozi</option>
+                                <option value="getProdottiNegozio">get Prodotti Negozio</option>
                             </optgroup>
                             <optgroup label="Scrittura">
                                 <option value="setDatiNegozio">Set Dati Negozio</option>
@@ -200,6 +210,28 @@
                                                 <input type="text" name="token">
                                             </div>
                                             <button onclick="emit('getNegozi')">GET NEGOZI</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr id="tr_getProdottiNegozio" class="emit" style="display: none;">
+                                    <td>
+                                        <form class="socket" id="getNegozi" onsubmit="return false">
+                                            <div>
+                                                <label>Negozio</label><br/>
+                                                <input type="text" name="id">
+                                            </div>
+                                            <div>
+                                                <label>Status</label><br/>
+                                                <select name="status">
+                                                    <option value="PRE-PUB">Pre pubblicazione</option>
+                                                    <option value="ATT-MOD">Attesa moderazione</option>
+                                                    <option value="PUB">Pubblicato</option>
+                                                    <option value="BAN">Bannato</option>
+                                                    <option value="SOS">Sospeso</option>
+                                                    <option value="END">Scaduto</option>
+                                                </select>
+                                            </div>
+                                            <button onclick="emit('getProdottiNegozio')">GET PRODOTTI NEGOZIO</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -284,14 +316,13 @@
                                                 <label>Negozio</label><br/>
                                                 <input type="text" name="id" id="logo_id">
                                             </div>
-                                            <h2>Video Uploader</h2>
                                             <div>
-                                                <label for="logo_file_box">Choose A File: </label>
+                                                <label for="logo_file_box">Foto: </label><br/>
                                                 <input type="file" id="logo_file_box"><br>
                                             </div>
                                             <div>
-                                                <label for="logo_name_box">Name: </label>
-                                                <input type="text" id="logo_name_box"><br>
+                                                <label for="logo_name_box">Nome file: </label><br/>
+                                                <input type="text" id="logo_name_box" readonly="readonly"><br>
                                             </div>
                                             <button  type='button' id='UploadButton' class='Button'>Upload</button>
                                             <span id='UploadArea'>

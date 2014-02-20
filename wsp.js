@@ -8,6 +8,7 @@ var express = require('express')
         , wsp = require('./wsp_modules/wsp')
         , upload = require('./wsp_modules/upload')
         , negozio = require('./wsp_modules/negozio')
+        , prodotti = require('./wsp_modules/prodotti')
         , mysql = require('mysql')
         , $ = require('cheerio')
         , querystring = require('querystring')
@@ -148,6 +149,18 @@ io.sockets.on('connection', function(socket) {
             negozio.getNegoziUser(db_pool, user.user, function(output) {
                 socket.emit('getNegozi', output);
             });
+        });
+    });
+    
+    socket.on('getProdottiNegozio', function(data) {
+        if (!data.id) {
+            return socket.emit('getNegozi', {status: 500, error: 'Can\'t find id negozio'});
+        }
+        if (!data.status) {
+            return socket.emit('getNegozi', {status: 500, error: 'Can\'t find status'});
+        }
+        prodotti.getProdottiNegozio(db_pool, data, function(output) {
+            socket.emit('getProdottiNegozio', output);
         });
     });
 

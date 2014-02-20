@@ -68,6 +68,10 @@
                 log('setDatiNegozio', 'on', response);
             });
 
+            socket.on('getProdottiNegozio', function(response) {
+                log('getProdottiNegozio', 'on', response);
+            });
+
             $(document).ready(function() {
                 $('#emit').change(function() {
                     $('.emit').hide();
@@ -169,6 +173,7 @@
                             <option value="login">Login</option>
                             <optgroup label="Lettura">
                                 <option value="getNegozi">Get Negozi</option>
+                                <option value="getProdottiNegozio">get Prodotti Negozio</option>
                             </optgroup>
                             <optgroup label="Scrittura">
                                 <option value="setDatiNegozio">Set Dati Negozio</option>
@@ -205,6 +210,28 @@
                                                 <input type="text" name="token">
                                             </div>
                                             <button onclick="emit('getNegozi')">GET NEGOZI</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr id="tr_getProdottiNegozio" class="emit" style="display: none;">
+                                    <td>
+                                        <form class="socket" id="getNegozi" onsubmit="return false">
+                                            <div>
+                                                <label>Negozio</label><br/>
+                                                <input type="text" name="id">
+                                            </div>
+                                            <div>
+                                                <label>Status</label><br/>
+                                                <select name="status">
+                                                    <option value="PRE-PUB">Pre pubblicazione</option>
+                                                    <option value="ATT-MOD">Attesa moderazione</option>
+                                                    <option value="PUB">Pubblicato</option>
+                                                    <option value="BAN">Bannato</option>
+                                                    <option value="SOS">Sospeso</option>
+                                                    <option value="END">Scaduto</option>
+                                                </select>
+                                            </div>
+                                            <button onclick="emit('getProdottiNegozio')">GET PRODOTTI NEGOZIO</button>
                                         </form>
                                     </td>
                                 </tr>
