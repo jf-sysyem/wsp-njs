@@ -41,47 +41,5 @@ var getProdottiNegozio = function(db_pool, data, callback) {
     });
 };
 
-var setDatiNegozio = function(db_pool, user, negozio, dati, callback) {
-    db_pool.getConnection(function(error, connection) {
-        if (error) {
-            return callback({status: 500, error: '[Negozio.setDatiNegozio] Can\'t create db pool: ' + error});
-        }
-        var data = Object.extended(dati);
-        var set = "";
-        data.keys().each(function(k) {
-            if(k === 'email') {
-                k = "email_negozio";
-            }
-            if(set === "") {
-                set += "   SET n."+k+" = " + connection.escape(data[k]);
-            } else {
-                set += "     , n."+k+" = " + connection.escape(data[k]);
-            }
-            if(k === 'latitudine' || k === 'longitudine') {
-                set += "     , n."+k+"rad = " + connection.escape(deg2rad(data[k]));
-            }
-        });
-        var query =
-                "UPDATE acl_negozio n " +
-                set +
-                " WHERE n.cliente_id = " + connection.escape(user.id) +
-                "   AND n.id = " + connection.escape(negozio);
-        connection.query(query, function(err, rows) {
-            if (err) {
-                return callback({status: 500, error: '[Negozio.setDatiNegozio] Can\'t execute query: ' + err});
-            }
-            connection.end();
-            switch(rows.affectedRows) {
-                case 1: callback({status: 200});
-                    break;
-                case 0: callback({status: 401, error: 'Unauthorized operation'});
-                    break;
-                default:callback({status: 500, error: 'CRITICAL ERROR: to many rows modified'});
-                    break;
-            }
-        });
-    });
-};
 
-exports.getNegoziUser = getNegoziUser;
-exports.setDatiNegozio = setDatiNegozio;
+exports.getProdottiNegozio = getProdottiNegozio;
